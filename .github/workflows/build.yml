@@ -69,4 +69,8 @@ jobs:
         run: |
           buildozer android debug
 
-      - name:
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: .buildozer/android/platform/build/dists/*/bin/*
