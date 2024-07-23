@@ -60,10 +60,10 @@ jobs:
           echo "Build tools version:"
           ls $HOME/android-sdk/build-tools/30.0.3
 
-      - name: Install Buildozer
+      - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install buildozer
+          pip install buildozer cython
 
       - name: Build with Buildozer
         run: |
