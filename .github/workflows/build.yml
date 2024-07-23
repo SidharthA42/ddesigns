@@ -20,17 +20,28 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y wget unzip
-          wget https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip
+          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
           mkdir -p $HOME/android-sdk/cmdline-tools
-          unzip -q commandlinetools-linux-7302050_latest.zip -d $HOME/android-sdk/cmdline-tools
+          unzip -q commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk/cmdline-tools
           mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --update
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" "ndk-bundle"
 
       - name: Set up environment variables
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH" >> $GITHUB_ENV
           echo "PATH=$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Verify Android SDK installation
+        run: |
+          echo "SDK Manager version:"
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --version
+          echo "Android tools version:"
+          $HOME/android-sdk/platform-tools/adb --version
+          echo "Build tools version:"
+          ls $HOME/android-sdk/build-tools/30.0.3
 
       - name: Get Date
         id: get-date
@@ -49,15 +60,13 @@ jobs:
           path: .buildozer
           key: ${{ runner.os }}-${{ env.date }}-${{ hashFiles('buildozer.spec') }}
 
-      - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          command: android debug
-          buildozer_version: stable
+      - name: Install Buildozer
+        run: |
+          pip install --upgrade pip
+          pip install buildozer
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+      - name: Build with Buildozer
+        run: |
+          buildozer android debug
+
+      - name:
