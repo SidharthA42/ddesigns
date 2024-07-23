@@ -10,33 +10,36 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      #used to cache dependencies with a timeout
+      # Cache dependencies with a timeout
       - name: Get Date
         id: get-date
-        run: |
-          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+        run: echo "::set-output name=date::$(date -u +'%Y%m%d')"
         shell: bash
 
       - name: Cache Buildozer global directory
+        id: cache-buildozer-global
         uses: actions/cache@v2
         with:
           path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }} # Replace with your path
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
-      - uses: actions/cache@v2
+      - name: Cache Buildozer directory
+        id: cache-buildozer
+        uses: actions/cache@v2
         with:
           path: .buildozer
           key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
 
       - name: Build with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
         with:
-          command: buildozer android debug
+          command: android debug
           buildozer_version: stable
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: bin/*.apk # Replace with the correct path to your APK file
+
