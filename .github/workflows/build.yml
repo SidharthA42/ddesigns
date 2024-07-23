@@ -46,10 +46,10 @@ jobs:
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --update
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" "ndk-bundle"
         
-      - name: Accept SDK licenses
+      - name: Install additional SDK packages
         run: |
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;30.0.3" "platform-tools" "platforms;android-30"
+        
       - name: Set up environment variables
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
