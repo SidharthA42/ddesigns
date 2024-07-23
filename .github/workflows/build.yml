@@ -8,27 +8,26 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      # Cache dependencies with a timeout
       - name: Get Date
         id: get-date
-        run: echo "::set-output name=date::$(date -u +'%Y%m%d')"
+        run: echo "date=$(date -u +'%Y%m%d')" >> $GITHUB_ENV
         shell: bash
 
       - name: Cache Buildozer global directory
         id: cache-buildozer-global
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: .buildozer_global
           key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
       - name: Cache Buildozer directory
         id: cache-buildozer
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: .buildozer
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
+          key: ${{ runner.os }}-${{ env.date }}-${{ hashFiles('buildozer.spec') }}
 
       - name: Build with Buildozer
         id: buildozer
@@ -42,4 +41,3 @@ jobs:
         with:
           name: package
           path: bin/*.apk # Replace with the correct path to your APK file
-
